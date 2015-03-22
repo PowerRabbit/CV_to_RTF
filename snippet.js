@@ -7,7 +7,23 @@
         body = document.body,
         data,
         rtf = {},
+
+        SUMMARY = 'summary',
+        EXPERIENCE = 'experience',
+        PROJECTS = 'projects',
+        SKILLS = 'skills',
+        LANGUAGES = 'languages',
+        EDUCATION = 'education',
+        INTERESTS = 'interests',
+
+        EMPLOYER = 'employer',
+        POSITION = 'position',
+        TIME = 'time',
+        LOCATION = 'location',
+        DESCRIPTION = 'description',
+
         slice = Function.prototype.call.bind(Array.prototype.slice),
+        getExperienceObj,
         collectInfoForEachEntry,
         collectData,
         transferToUnicodeForRTF,
@@ -35,23 +51,92 @@
         });
     };
 
-    collectInfoForEachEntry = function (el) {
-        var text_array = [],
-            elements = slice(el.nextElementSibling.querySelectorAll('h5 a'));
+    getExperienceObj = function (el) {
+        var result = {},
+            exp_date_loc = el.querySelector('.experience-date-locale'),
+            time = slice(exp_date_loc.querySelectorAll('time')),
+            time_string = '',
+            location = exp_date_loc.querySelector('.locality'),
+            location_string = '',
+            duration = '',
+            duration_loc,
+            present;
 
-        elements.forEach(function (item) {
-            text_array.push(transferToUnicodeForRTF(item.textContent));
+        if (location) {
+            location_string = location.textContent;
+        }
+
+        slice(exp_date_loc.childNodes).forEach(function (node) {
+            if (node.nodeType === 3 && node.textContent.length > 3) {
+                duration_loc = node.textContent.split(' (').reverse();
+                duration = '(' + duration_loc[0];
+                present = duration_loc[1];
+            }
         });
-        return text_array;
+
+        if (time.length) {
+            time_string += time[0].textContent;
+            if (time[1]) {
+                time_string += ' &mdah; ' + time[1].textContent;
+            } else {
+                if (present.length) {
+                    time_string += present;
+                }
+            }
+        }
+
+        result[POSITION] = el.querySelector('h4').textContent;
+        result[EMPLOYER] = el.querySelector('h5').textContent;
+        result[TIME] = time_string;
+        result[LOCATION] = location_string;
+        result[DESCRIPTION] = el.querySelector('p.description').innerHTML.split('<br>').join('\n');
+
+        return result;
+    };
+
+    collectInfoForEachEntry = function (el) {
+        var data_array = [],
+            parent = el.parentNode,
+            grand_parent = parent.parentNode,
+            block_type = grand_parent.id.split('-')[1];
+
+        switch (block_type) {
+        case SUMMARY:
+            data_array.push(parent.nextElementSibling.querySelector('.description').textContent);
+            break;
+        case EXPERIENCE:
+            while (el.nextElementSibling && el.nextElementSibling.tagName.toLowerCase() === 'div') {
+                el = el.nextElementSibling;
+                data_array.push(getExperienceObj(el));
+            }
+            break;
+        case PROJECTS:
+
+            break;
+        case SKILLS:
+
+            break;
+        case LANGUAGES:
+
+            break;
+        case EDUCATION:
+
+            break;
+        case INTERESTS:
+
+            break;
+        }
+
+        return data_array;
     };
 
     collectData = function () {
         var dt = [],
-            headers = slice(document.querySelectorAll('h4')),
+            headers = slice(document.querySelectorAll('#background h3')),
             el,
             i;
 
-        for (i = 0; i < 2; i += 1) {
+        for (i = 0; i < headers.length; i += 1) {
             el = headers[i];
             dt.push({
                 header: transferToUnicodeForRTF(el.textContent),
@@ -67,7 +152,7 @@
             i;
 
         for (i = 0; i < text.length; i += 1) {
-            result += '\\u' + ('000' + text[i].charCodeAt(0).toString()).substr(-4) + '\\\'3f';
+            result += '\\u' + text[i].charCodeAt() + '\\\'3f';
         }
         return result;
     };
@@ -83,6 +168,7 @@
     };
 
     data = collectData();
-    prepareRTF(data);
-    downloadDocument(rtf);
+  //  prepareRTF(data);
+    console.log(data);
+  //  downloadDocument(rtf);
 }(this));
