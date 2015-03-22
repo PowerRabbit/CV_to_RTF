@@ -37,23 +37,45 @@
         downloadDocument;
 
     rtf.text = '';
-    rtf.addHeader = function (txt) {
-        this.text += '{\\rtlch\\fcs1 \\af31507 \\ltrch\\fcs0 \\f26 ' + txt + ' }\\n';
+    rtf.style = '{\\stylesheet{\\s0\\snext0\\ql\\nowidctlpar\\ltrpar{\\*\\hyphen2\\hyphlead2\\hyphtrail2\\hyphmax0}\\cf1\\kerning1\\dbch\\af8\\langfe2052\\dbch\\af9\\afs24\\alang1081\\loch\\f5\\fs24\\lang1049 Normal;}\n{\\s1\\sbasedon15\\snext16\\ilvl0\\outlinelevel0\\ql\\nowidctlpar\\sb240\\sa120\\keepn\\ltrpar\\cf1\\b\\kerning1\\dbch\\af7\\langfe2052\\dbch\\af9\\afs36\\alang1081\\ab\\loch\\f6\\fs36\\lang1049 \\u1047\\\'17\\u1072\\\'30\\u1075\\\'33\\u1086\\\'3e\\u1083\\\'3b\\u1086\\\'3e\\u1074\\\'32\\u1086\\\'3e\\u1082\\\'3a 1;}\n{\\s2\\sbasedon15\\snext16\\ilvl1\\outlinelevel1\\ql\\nowidctlpar\\sb200\\sa120\\keepn\\ltrpar\\cf1\\b\\kerning1\\dbch\\af7\\langfe2052\\dbch\\af9\\afs32\\alang1081\\ab\\loch\\f6\\fs32\\lang1049 \\u1047\\\'17\\u1072\\\'30\\u1075\\\'33\\u1086\\\'3e\\u1083\\\'3b\\u1086\\\'3e\\u1074\\\'32\\u1086\\\'3e\\u1082\\\'3a 2;}\n{\\s3\\sbasedon15\\snext16\\ilvl2\\outlinelevel2\\ql\\nowidctlpar\\sb140\\sa120\\keepn\\ltrpar\\cf2\\b\\kerning1\\dbch\\af7\\langfe2052\\dbch\\af9\\afs28\\alang1081\\ab\\loch\\f6\\fs28\\lang1049 \\u1047\\\'17\\u1072\\\'30\\u1075\\\'33\\u1086\\\'3e\\u1083\\\'3b\\u1086\\\'3e\\u1074\\\'32\\u1086\\\'3e\\u1082\\\'3a 3;}\n}';
+    rtf.addHeader2 = function (txt) {
+        this.text += '\\s2\\ilvl1\\outlinelevel1\\ql\\nowidctlpar\\sb200\\sa120\\keepn\\ltrpar\\cf1\\b\\kerning1\\dbch\\af7\\langfe2052\\dbch\\af9\\afs32\\alang1081\\ab\\loch\\f6\\fs32\\lang1049{\\listtext\\pard\\plain \\tab}\\ls1 \\li576\\ri0\\lin576\\rin0\\fi-576{\\alang1025\\rtlch \\ltrch\\loch\\loch\\f4 ' + txt + ' }\\n \\par \\n';
+    };
+    rtf.addHeader3 = function (txt) {
+        this.text += '\\par \\pard\\plain \\s3\\ilvl2\\outlinelevel2\\ql\\nowidctlpar\\sb140\\sa120\\keepn\\ltrpar\\cf2\\b\\kerning1\\dbch\\af7\\langfe2052\\dbch\\af9\\afs28\\alang1081\\ab\\loch\\f6\\fs28\\lang1049{\\listtext\\pard\\plain }\\ilvl2\\ls2 \\li2160\\ri0\\lin2160\\rin0\\fi-360\\li720\\ri0\\lin720\\rin0\\fi-720{\\alang1025\\rtlch \\ltrch\\loch\\loch\\f4 ' + txt + ' }\\n \\par \\n';
+    };
+    rtf.addBreak = function () {
+        this.text += '\par \\n';
     };
     rtf.addParagraph = function (txt) {
         this.text += '{\\rtlch\\fcs1 \\af31507 \\ltrch\\fcs0 \\f26 ' + txt + ' }\\n';
     };
     rtf.toString = function () {
-        var result_text = '{\\rtf1\\adeflang1025\\ansi\\n{\\fonttbl\\n{\\f26\\fbidi \\froman\\fcharset204\\fprq2{\\*\\panose 010a0502050306030303}Sylfaen;}\\n}\\n' + this.text + '\\n}';
+        var result_text = '{\\rtf1\\adeflang1025\\ansi\\n{\\fonttbl{\\f0\\froman\\fprq2\\fcharset0 Times New Roman;}{\\f1\\froman\\fprq2\\fcharset2 Symbol;}{\\f2\\fswiss\\fprq2\\fcharset0 Arial;}{\\f3\\froman\\fprq2\\fcharset204 Liberation Serif{\\*\\falt Times New Roman};}{\\f4\\fswiss\\fprq2\\fcharset1 Arial;}{\\f5\\froman\\fprq0\\fcharset1 Liberation Serif{\\*\\falt Times New Roman};}{\\f6\\fswiss\\fprq0\\fcharset1 Liberation Sans{\\*\\falt Arial};}{\\f7\\fnil\\fprq2\\fcharset204 Microsoft YaHei;}{\\f8\\fnil\\fprq2\\fcharset204 Arial;}{\\f9\\fnil\\fprq0\\fcharset1 Mangal;}}\\n' + this.style + this.text + '\\n}';
         return result_text;
     };
 
     prepareRTF = function (dt) {
         dt.forEach(function (group) {
-            rtf.addHeader(group.header);
-            group.entries.forEach(function (entry) {
+            rtf.addHeader2(transferToUnicodeForRTF(group.header));
+            switch (group.type) {
+            case SUMMARY:
+                
+                break;
+            case EXPERIENCE:
+                
+                break;
+            case PROJECTS:
+                
+                break;
+            case SKILLS:
+                
+                break;
+            }
+            
+            /* group.entries.forEach(function (entry) {
                 rtf.addParagraph(entry);
-            });
+            }); */
         });
     };
 
@@ -74,8 +96,8 @@
 
         if (h5.length) {
             h5_string = h5[h5.length - 1].textContent;
-        }        
-        
+        }
+
         if (location) {
             location_string = location.textContent;
         }
@@ -129,21 +151,22 @@
             if (li.id !== 'see-more-less-skill') {
                 text = li.textContent;
                 if (isNaN(text)) {
-                    int_part = parseInt(text);
+                    int_part = parseInt(text, 10);
 
                     if (!isNaN(int_part)) {
                         text = text.substr((int_part + '').length);
-                    }                    
+                    }
                     result.push(text);
                 }
             }
         });
         return result;
     };
-    
+
     collectInfoForEachEntry = function (el) {
         var data_array = [],
             parent = el.parentNode,
+            header = el.textContent,
             grand_parent = parent.parentNode,
             block_type = grand_parent.id.split('-')[1];
 
@@ -192,22 +215,20 @@
             break;
         }
 
-        return data_array;
+        return {
+            header: header,
+            type: block_type,
+            entries: data_array
+        };
     };
 
     collectData = function () {
         var dt = [],
-            headers = slice(document.querySelectorAll('#background h3')),
-            el,
-            i;
+            headers = slice(document.querySelectorAll('#background h3'));
 
-        for (i = 0; i < headers.length; i += 1) {
-            el = headers[i];
-            dt.push({
-                header: el.textContent,
-                entries: collectInfoForEachEntry(el)
-            });
-        }
+        headers.forEach(function (header) {
+            dt.push(collectInfoForEachEntry(header));
+        });
 
         return dt;
     };
@@ -233,7 +254,7 @@
     };
 
     data = collectData();
-  //  prepareRTF(data);
+    prepareRTF(data);
     console.log(data);
-  //  downloadDocument(rtf);
+    downloadDocument(rtf);
 }(this));
