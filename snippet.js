@@ -60,12 +60,17 @@
             location_string = '',
             duration = '',
             duration_loc,
-            present;
+            present,
+            description = el.querySelector('p.description');
 
         if (location) {
             location_string = location.textContent;
         }
-
+        
+        if (description) {
+            description = description.innerHTML.split('<br>').join('\n');
+        }
+        
         slice(exp_date_loc.childNodes).forEach(function (node) {
             if (node.nodeType === 3 && node.textContent.length > 3) {
                 duration_loc = node.textContent.split(' (').reverse();
@@ -89,7 +94,7 @@
         result[EMPLOYER] = el.querySelector('h5').textContent;
         result[TIME] = time_string;
         result[LOCATION] = location_string;
-        result[DESCRIPTION] = el.querySelector('p.description').innerHTML.split('<br>').join('\n');
+        result[DESCRIPTION] = description || '';
 
         return result;
     };
