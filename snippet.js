@@ -29,6 +29,7 @@
 
         slice = Function.prototype.call.bind(Array.prototype.slice),
         getDataObj,
+        getSkills,
         collectInfoForEachEntry,
         collectData,
         transferToUnicodeForRTF,
@@ -118,6 +119,28 @@
         return result;
     };
 
+    getSkills = function (el) {
+        var ul = slice(el.parentNode.parentNode.querySelectorAll('.skills-section > li')),
+            text,
+            int_part,
+            result = [];
+
+        ul.forEach(function (li) {
+            if (li.id !== 'see-more-less-skill') {
+                text = li.textContent;
+                if (isNaN(text)) {
+                    int_part = parseInt(text);
+
+                    if (!isNaN(int_part)) {
+                        text = text.substr((int_part + '').length);
+                    }                    
+                    result.push(text);
+                }
+            }
+        });
+        return result;
+    };
+    
     collectInfoForEachEntry = function (el) {
         var data_array = [],
             parent = el.parentNode,
@@ -141,7 +164,7 @@
             }
             break;
         case SKILLS:
-
+            data_array.push(getSkills(el));
             break;
         case LANGUAGES:
 
