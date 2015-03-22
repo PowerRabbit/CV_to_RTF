@@ -14,16 +14,21 @@
         SKILLS = 'skills',
         LANGUAGES = 'languages',
         EDUCATION = 'education',
+        ORGANIZATIONS = 'organizations',
         INTERESTS = 'interests',
+        COURSES = 'courses',
+        PUBLICATIONS = 'publications',
+        HONORS = 'honors',
+        ADDITIONAL = 'additional',
 
-        EMPLOYER = 'employer',
-        POSITION = 'position',
+        H5 = 'h5',
+        H4 = 'h4',
         TIME = 'time',
         LOCATION = 'location',
         DESCRIPTION = 'description',
 
         slice = Function.prototype.call.bind(Array.prototype.slice),
-        getExperienceObj,
+        getDataObj,
         collectInfoForEachEntry,
         collectData,
         transferToUnicodeForRTF,
@@ -51,31 +56,44 @@
         });
     };
 
-    getExperienceObj = function (el) {
+    getDataObj = function (el) {
         var result = {},
-            exp_date_loc = el.querySelector('.experience-date-locale'),
+            h4 = el.querySelector('h4'),
+            exp_date_loc = h4.parentNode.nextElementSibling,
             time = slice(exp_date_loc.querySelectorAll('time')),
             time_string = '',
+            h5 = el.querySelectorAll('h5'),
+            h5_string = '',
             location = exp_date_loc.querySelector('.locality'),
             location_string = '',
             duration = '',
             duration_loc,
-            present,
+            present = '',
             description = el.querySelector('p.description');
 
+        if (h5.length) {
+            h5_string = h5[h5.length - 1].textContent;
+        }        
+        
         if (location) {
             location_string = location.textContent;
         }
-        
+
         if (description) {
             description = description.innerHTML.split('<br>').join('\n');
         }
-        
+
         slice(exp_date_loc.childNodes).forEach(function (node) {
             if (node.nodeType === 3 && node.textContent.length > 3) {
                 duration_loc = node.textContent.split(' (').reverse();
-                duration = '(' + duration_loc[0];
-                present = duration_loc[1];
+
+                if (duration_loc[1] !== undefined) {
+                    duration = '(' + duration_loc[0];
+                    present = duration_loc[1];
+                } else {
+                    duration = duration_loc[0];
+                    present = '';
+                }
             }
         });
 
@@ -88,10 +106,11 @@
                     time_string += present;
                 }
             }
+            time_string += ' ' + duration;
         }
 
-        result[POSITION] = el.querySelector('h4').textContent;
-        result[EMPLOYER] = el.querySelector('h5').textContent;
+        result[H4] = h4.textContent;
+        result[H5] = h5_string;
         result[TIME] = time_string;
         result[LOCATION] = location_string;
         result[DESCRIPTION] = description || '';
@@ -112,11 +131,14 @@
         case EXPERIENCE:
             while (el.nextElementSibling && el.nextElementSibling.tagName.toLowerCase() === 'div') {
                 el = el.nextElementSibling;
-                data_array.push(getExperienceObj(el));
+                data_array.push(getDataObj(el));
             }
             break;
         case PROJECTS:
-
+            while (el.nextElementSibling && el.nextElementSibling.tagName.toLowerCase() === 'div') {
+                el = el.nextElementSibling;
+                data_array.push(getDataObj(el));
+            }
             break;
         case SKILLS:
 
@@ -127,7 +149,22 @@
         case EDUCATION:
 
             break;
+        case ORGANIZATIONS:
+
+            break;
         case INTERESTS:
+
+            break;
+        case COURSES:
+
+            break;
+        case PUBLICATIONS:
+
+            break;
+        case HONORS:
+
+            break;
+        case ADDITIONAL:
 
             break;
         }
@@ -144,7 +181,7 @@
         for (i = 0; i < headers.length; i += 1) {
             el = headers[i];
             dt.push({
-                header: transferToUnicodeForRTF(el.textContent),
+                header: el.textContent,
                 entries: collectInfoForEachEntry(el)
             });
         }
